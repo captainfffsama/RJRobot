@@ -1,0 +1,30 @@
+policy_cfg:
+  expert_tools_models:
+    [
+      {
+        type: "FakeDetectModel",
+        inputdata_modality: "image",
+        outputdata_modality: "bbox",
+      },
+      # {
+      #   type: "FakeSegModel",
+      #   inputdata_modality: "image",
+      #   outputdata_modality: "image",
+      # },
+    ]
+  encoders:
+    [
+      { type: "FakeDirectPassEncoder", inputdata_modality: "image" },
+      { type: "FakeDirectPassEncoder", inputdata_modality: "text" },
+      { type: "FakeDirectPassEncoder", inputdata_modality: "struct_data" },
+      { type: "FakeDirectPassEncoder", inputdata_modality: "bbox" },
+    ]
+  vlm:
+    type: "OnlineVLM"
+    url: "https://api.siliconflow.cn/v1/chat/completions"
+    model: "deepseek-ai/deepseek-vl2"
+    api: ""
+  action_expert:
+    type: "FakeActExpert"
+  act_safe_guard:
+    type: "FakeActGuard"
