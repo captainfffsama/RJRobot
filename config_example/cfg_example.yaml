@@ -22,7 +22,7 @@ policy_cfg:
   vlm:
     type: "OnlineVLM"
     url: "https://api.siliconflow.cn/v1/chat/completions"
-    model: "deepseek-ai/deepseek-vl2"
+    model: "Qwen/Qwen2.5-VL-72B-Instruct"
     api: ""
   action_expert:
     type: "FakeActExpert"

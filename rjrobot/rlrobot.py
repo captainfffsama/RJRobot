@@ -89,7 +89,7 @@ class RJRobotPolicy(object):
             if atom_actions:
                 self.current_sub_task_atom_actions.batch_push(atom_actions)
             else:
-                return torch.Tensor([0]*7), ErrorCode.PLAN_ATOM_ACTION_FAIL
+                return torch.Tensor([0]*7), ErrorCode.PLAN_SUB_ATOM_ACTION_FAIL 
         print("current atomic action: ", self.current_sub_task_atom_actions.peek())
 
         current_atomic_action = self.current_sub_task_atom_actions.peek()

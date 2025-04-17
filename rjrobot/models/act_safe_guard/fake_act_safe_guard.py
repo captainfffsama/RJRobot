@@ -8,7 +8,7 @@ from rjrobot.common import ActionFlag
 
 class FakeActGuard(BaseActSafeGuardModel):
     def predict(self, obervation_data: dict, prompt_text: str,actions:torch.Tensor):
-        if random.random() > 0.3:
+        if random.random() > 0.7:
             return ActionFlag.SAFE
         else:
             return ActionFlag.STOP

@@ -123,11 +123,16 @@ class OnlineVLM(VLMBaseModel):
                     values.extend(value)
 
                 return values
-            except json.JSONDecodeError:
+            # except json.JSONDecodeError:
+            except Exception as e:
                 logging.warning(
+                    f"无法解析响应中的JSON内容,原始响应内容:{response}"
+                )
+                print(
                     f"无法解析响应中的JSON内容,原始响应内容:{response}"
                 )
                 return []
         else:
             logging.warning(f"响应中未找到JSON内容,原始响应内容:{response}")
+            print(f"响应中未找到JSON内容,原始响应内容:{response}")
             return []
