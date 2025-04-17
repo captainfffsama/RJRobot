@@ -2,12 +2,13 @@ import random
 
 import torch
 
-from .base_model import BaseActSafeGuardModel, ActionFlag
+from .base_model import BaseActSafeGuardModel
+from rjrobot.common import ActionFlag
 
 
 class FakeActGuard(BaseActSafeGuardModel):
-    def predict(self, inputs, **kwds):
-        if random.random() > 0.5:
+    def predict(self, obervation_data: dict, prompt_text: str,actions:torch.Tensor):
+        if random.random() > 0.3:
             return ActionFlag.SAFE
         else:
             return ActionFlag.STOP

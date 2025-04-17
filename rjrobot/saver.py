@@ -14,6 +14,9 @@ class Stack:
 
     def __repr__(self):
         return f"Stack({list(self.items)})"
+
+    def batch_push(self, items):
+        self.items.extend(items[::-1])
     
     def push(self, item):
         self.items.append(item)
@@ -33,6 +36,9 @@ class Stack:
     
     def size(self):
         return len(self.items)
+
+    def clear(self):
+        self.items.clear()
 
 class TaskSaver:
     pass

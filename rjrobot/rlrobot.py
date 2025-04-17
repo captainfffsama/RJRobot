@@ -8,6 +8,8 @@ from typing import Dict, Any
 from copy import deepcopy
 from collections import defaultdict
 
+import torch
+
 from rjrobot.utils import build_obj_from_dict
 import rjrobot.models.expert_tools_models as rmetm
 import rjrobot.models.encoders as rme
@@ -15,6 +17,8 @@ import rjrobot.models.vlm as rmv
 import rjrobot.models.act_experts as rmae
 import rjrobot.models.act_safe_guard as rmasg
 from rjrobot.constants import SUBTASK_SYS_PROMPT, ACTIONPLAN_SYS_PROMPT
+from rjrobot.saver import Stack
+from rjrobot.common import ActionFlag, ErrorCode
 
 
 class RJRobotPolicy(object):
@@ -32,6 +36,9 @@ class RJRobotPolicy(object):
         self.act_planer: rmv.OnlineVLM = build_obj_from_dict(cfg["vlm"], parent=rmv)
         self.action_expert = build_obj_from_dict(cfg["action_expert"], parent=rmae)
         self.act_safe_guard = build_obj_from_dict(cfg["act_safe_guard"], parent=rmasg)
+
+        self.sub_tasks = Stack()
+        self.current_sub_task_atom_actions = Stack()
 
     def __call__(self, inputs: Dict[str, Dict[str, Any]], **kwds):
         tmp_inputs: dict = deepcopy(inputs)
@@ -61,15 +68,41 @@ class RJRobotPolicy(object):
                 )
         prompt_info = tuple(encoder_outputs.pop("text").values())[0][0]
         observations = encoder_outputs
-        # plan sub-task
-        self.act_planer.set_system_prompt(SUBTASK_SYS_PROMPT)
-        tasks_list = self.act_planer.predict(observations, prompt_info)
+        if self.sub_tasks.is_empty():
+            # plan sub-task
+            self.act_planer.clear_history()
+            self.act_planer.set_system_prompt(SUBTASK_SYS_PROMPT)
+            subs_task = self.act_planer.predict(observations, prompt_info)
+            if subs_task:
+                self.sub_tasks.batch_push(subs_task)
+            else:
+                return None, ErrorCode.PLAN_SUB_TASK_FAIL
 
-        # plan actions for each sub-task
-        for task in tasks_list:
+        print("current sub-task: ", self.sub_tasks.peek())
+
+        if self.current_sub_task_atom_actions.is_empty():
+            # plan atomic action
             self.act_planer.clear_history()
             self.act_planer.set_system_prompt(ACTIONPLAN_SYS_PROMPT)
-            actions_list = self.act_planer.predict(observations, task)
-            print(actions_list)
 
-        print(tmp_inputs)
+            atom_actions = self.act_planer.predict(observations, self.sub_tasks.peek())
+            if atom_actions:
+                self.current_sub_task_atom_actions.batch_push(atom_actions)
+            else:
+                return torch.Tensor([0]*7), ErrorCode.PLAN_ATOM_ACTION_FAIL
+        print("current atomic action: ", self.current_sub_task_atom_actions.peek())
+
+        current_atomic_action = self.current_sub_task_atom_actions.peek()
+        action = self.action_expert.predict(observations, current_atomic_action)
+        safe_flag = self.act_safe_guard.predict(observations,prompt_info, action)
+        if safe_flag ==ActionFlag.SAFE:
+            self.current_sub_task_atom_actions.pop()
+            if self.current_sub_task_atom_actions.is_empty():
+                self.sub_tasks.pop()
+                if self.sub_tasks.is_empty():
+                    # all sub-tasks are done
+                    return action, ErrorCode.TASK_SUCCESS 
+        elif safe_flag == ActionFlag.STOP:
+            # replan sub-task
+            self.current_sub_task_atom_actions.clear()
+        return action, safe_flag

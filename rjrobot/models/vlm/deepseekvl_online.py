@@ -74,6 +74,7 @@ class OnlineVLM(VLMBaseModel):
         self.history_messages.append(self._input2prompt(observation_data, prompt_text))
         if self.system_prompt:
             self.payload["messages"] = [self.system_prompt] + self.history_messages
+        logging.info("vlm inference start")
         response = requests.request(
             "POST", self.url, json=self.payload, headers=self.headers
         )
@@ -123,8 +124,10 @@ class OnlineVLM(VLMBaseModel):
 
                 return values
             except json.JSONDecodeError:
-                logging.warning("无法解析响应中的JSON内容")
+                logging.warning(
+                    f"无法解析响应中的JSON内容,原始响应内容:{response}"
+                )
                 return []
         else:
-            logging.warning("响应中未找到JSON内容")
+            logging.warning(f"响应中未找到JSON内容,原始响应内容:{response}")
             return []

@@ -1,11 +1,8 @@
 from abc import ABCMeta, abstractmethod
 from typing import Any, List, Union
-from enum import Enum
 
-class ActionFlag(Enum):
-    SAFE=1
-    WARNING=2
-    STOP=3
+import torch
+
 
 
 class BaseActSafeGuardModel(metaclass=ABCMeta):
@@ -17,7 +14,7 @@ class BaseActSafeGuardModel(metaclass=ABCMeta):
     """
 
     @abstractmethod
-    def predict(self, input_data: Any) -> Any:
+    def predict(self, observation_data: dict, prompt_text: str,actions:torch.Tensor) -> Any:
         """
         Make a prediction based on the input data.
 

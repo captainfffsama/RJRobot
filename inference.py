@@ -26,6 +26,7 @@ def main(args):
     policy=RJRobotPolicy(policy_args_dict)
     for data in dataset:
         result=policy(data)
+        print(result)
 
 
 

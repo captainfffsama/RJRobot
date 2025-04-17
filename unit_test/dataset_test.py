@@ -28,8 +28,18 @@ class MultiModalRobotDatasetTestCase(unittest.TestCase):
             force_cache_sync=False,        # 不需要强制同步远程缓存
             download_videos=False          # 不会从远程下载视频
         )
+        previous_es=0
         for data in dataset:
-            breakpoint()
+            # D.show_img([data["observation.images.0_top"],data["observation.images.1_right"]])
+            
+            # if data["episode_index"].item()!=previous_es:
+            #     print("episode switch")
+            #     previous_es=data["episode_index"].item()
+            #     breakpoint()
+
+            if data['task_index'].item()==1:
+                print("task index changed")
+                breakpoint()
 
 
 if __name__ == "__main__":
