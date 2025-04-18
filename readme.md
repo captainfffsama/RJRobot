@@ -6,7 +6,7 @@
 
 - 机械臂运动控制与任务执行
 - 多模态感知（视觉、传感等）与目标识别
-- 强化学习与自主决策
+- 自主决策
 - 任务规划与安全保障
 - 数据采集、管理与分析
 
@@ -58,7 +58,7 @@ rjrobot/
 3. 配置机械臂SDK与相关参数。
 4. 运行示例或主程序：
     ```bash
-    python inference.py
+    python inference.py -cfg your_config.yaml --input_dir your_lerobot_dataset_dir
     ```
 
 ## 数据集说明

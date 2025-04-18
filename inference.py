@@ -25,6 +25,7 @@ def main(args):
     policy_args_dict=config_manager.param["policy_cfg"]
     policy=RJRobotPolicy(policy_args_dict)
     for data in dataset:
+        # data["text"]["task"]="把红色绝缘子掰成四段，然后堆叠到桌子边缘"
         result=policy(data)
         print(result)
 

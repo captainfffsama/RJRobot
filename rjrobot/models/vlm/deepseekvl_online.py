@@ -23,9 +23,9 @@ class OnlineVLM(VLMBaseModel):
     ):
         self.url = url
         self.model = model
-        self.api = api
+        # self.api = api
         # DEBUG: 测试用
-        self.api = os.environ["SILICONFLOW_API"]
+        self.api = api if api else os.environ["SILICONFLOW_API"]
 
         self.headers = {
             "Authorization": f"Bearer {self.api}",
